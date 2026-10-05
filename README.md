@@ -39,14 +39,12 @@ run the three commands below there to build the complete, real thing.
 
 ## Setup
 
-You'll need Python 3.10+ and an Anthropic API key (from
+You'll need [uv](https://docs.astral.sh/uv/) and an Anthropic API key (from
 [console.anthropic.com](https://console.anthropic.com)).
 
 ```bash
 cd playbook-rag
-python3 -m venv .venv
-source .venv/bin/activate      # on Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+uv sync                        # creates .venv and installs locked dependencies
 
 export ANTHROPIC_API_KEY=sk-ant-...   # on Windows: set ANTHROPIC_API_KEY=sk-ant-...
 ```
@@ -57,17 +55,24 @@ Run these in order. Each one can be re-run any time the Playbook changes.
 
 ```bash
 # 1. Crawl the whole site (takes a few minutes; add --max-pages 10 to test quickly first)
-python3 crawler.py
+uv run crawler.py
+#    optional: --base-url <url> to crawl another site, --xpath "<expr>" to only
+#    save text from the matching part of each page (e.g. --xpath "//main")
+
+# 1b. (optional) Add a folder of PDFs - saved alongside the crawled pages
+uv run pdf_crawler.py path/to/pdfs
+#    optional: --recursive for subfolders, --clean to drop previously added PDFs,
+#    --url-prefix <url> to cite them as hosted URLs instead of local file paths
 
 # 2. Chunk and embed everything into a local vector database
 #    (first run downloads a small embedding model, ~90MB)
-python3 build_index.py
+uv run build_index.py
 
 # 3. Ask questions
-python3 ask.py "How much holiday do I get?"
+uv run ask.py "How much holiday do I get?"
 
 # or run it as an interactive chat:
-python3 ask.py
+uv run ask.py
 ```
 
 A handful of real pages are already included in `data/raw/` so you can try
@@ -107,6 +112,7 @@ A few things worth adjusting if answers feel off, in `build_index.py` /
 
 ```
 crawler.py       - crawls playbook.dxw.com -> data/raw/*.json
+pdf_crawler.py   - extracts text from a folder of PDFs -> data/raw/pdf-*.json
 build_index.py   - chunks + embeds data/raw/ -> data/index/ (Chroma DB)
 ask.py           - retrieval + Claude Q&A
 data/raw/        - one JSON file per crawled page (url, title, text)

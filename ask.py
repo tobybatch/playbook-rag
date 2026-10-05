@@ -7,8 +7,8 @@ Requires the ANTHROPIC_API_KEY environment variable to be set to your
 Anthropic API key.
 
 Usage:
-    python3 ask.py                          # interactive chat loop
-    python3 ask.py "How much holiday do I get?"   # ask a single question and exit
+    uv run ask.py                                # interactive chat loop
+    uv run ask.py "How much holiday do I get?"   # ask a single question and exit
 """
 import os
 import sys
@@ -37,7 +37,7 @@ def load_retriever():
     if not os.path.isdir(INDEX_DIR) or not os.listdir(INDEX_DIR):
         sys.exit(
             f"No index found at {INDEX_DIR}.\n"
-            "Run 'python3 crawler.py' and then 'python3 build_index.py' first."
+            "Run 'uv run crawler.py' and then 'uv run build_index.py' first."
         )
     client = chromadb.PersistentClient(path=INDEX_DIR)
     collection = client.get_collection(COLLECTION_NAME)
